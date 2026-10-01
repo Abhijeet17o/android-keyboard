@@ -2,7 +2,7 @@
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [ voice-post-processing ]
   workflow_dispatch:
 
 jobs:
@@ -21,9 +21,6 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
-
       - name: Cache Gradle
         uses: actions/cache@v4
         with:
@@ -32,11 +29,19 @@ jobs:
             ~/.gradle/wrapper
           key: gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
 
+      - name: Accept Android SDK licenses
+        run: yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --licenses || true
+
       - name: Make gradlew executable
         run: chmod +x gradlew
 
       - name: Build Debug APK
         run: ./gradlew assembleUnstableDebug --stacktrace
+        env:
+          ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+
+      - name: Find APK
+        run: find . -name "*.apk" -type f
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
