@@ -18,10 +18,6 @@ import org.futo.inputmethod.latin.uix.SYSTEM_VOICE_INPUT_PACKAGE
 import org.futo.inputmethod.latin.uix.USE_PERSONAL_DICT
 import org.futo.inputmethod.latin.uix.USE_SYSTEM_VOICE_INPUT
 import org.futo.inputmethod.latin.uix.USE_VAD_AUTOSTOP
-import org.futo.inputmethod.latin.uix.VOICE_AUTO_CAPITALIZE
-import org.futo.inputmethod.latin.uix.VOICE_POST_PROCESSING
-import org.futo.inputmethod.latin.uix.VOICE_REMOVE_FILLERS
-import org.futo.inputmethod.latin.uix.VOICE_SPOKEN_PUNCTUATION
 import org.futo.inputmethod.latin.uix.settings.DropDownPickerSettingItem
 import org.futo.inputmethod.latin.uix.settings.NavigationItemStyle
 import org.futo.inputmethod.latin.uix.settings.Tip
@@ -177,28 +173,11 @@ val VoiceInputMenu = UserSettingsMenu(
         ).copy(visibilityCheck = visibilityCheckNotSystemVoiceInput),
 
         // ── Smart post-processing (Wispr Flow-like) ──────────────────────────
-        userSettingToggleDataStore(
-            title = R.string.voice_input_settings_post_processing,
-            subtitle = R.string.voice_input_settings_post_processing_subtitle,
-            setting = VOICE_POST_PROCESSING
-        ).copy(visibilityCheck = visibilityCheckNotSystemVoiceInput),
-
-        userSettingToggleDataStore(
-            title = R.string.voice_input_settings_remove_fillers,
-            subtitle = R.string.voice_input_settings_remove_fillers_subtitle,
-            setting = VOICE_REMOVE_FILLERS
-        ).copy(visibilityCheck = visibilityCheckNotSystemVoiceInput),
-
-        userSettingToggleDataStore(
-            title = R.string.voice_input_settings_spoken_punctuation,
-            subtitle = R.string.voice_input_settings_spoken_punctuation_subtitle,
-            setting = VOICE_SPOKEN_PUNCTUATION
-        ).copy(visibilityCheck = visibilityCheckNotSystemVoiceInput),
-
-        userSettingToggleDataStore(
-            title = R.string.voice_input_settings_auto_capitalize,
-            subtitle = R.string.voice_input_settings_auto_capitalize_subtitle,
-            setting = VOICE_AUTO_CAPITALIZE
+        userSettingNavigationItem(
+            title = R.string.voice_pp_settings_title,
+            subtitle = R.string.voice_pp_settings_subtitle,
+            style = NavigationItemStyle.Misc,
+            navigateTo = "voicePostProcessing"
         ).copy(visibilityCheck = visibilityCheckNotSystemVoiceInput),
 
         userSettingNavigationItem(

@@ -94,3 +94,13 @@ val VOICE_AUTO_CAPITALIZE = SettingsKey(
     key = booleanPreferencesKey("voice_auto_capitalize"),
     default = true
 )
+
+val VOICE_FILENAME_RECOGNITION = SettingsKey(
+    key = booleanPreferencesKey("voice_filename_recognition"),
+    default = true
+)
+
+val VOICE_SMART_PARAGRAPHS = SettingsKey(
+    key = booleanPreferencesKey("voice_smart_paragraphs"),
+    default = true
+)
