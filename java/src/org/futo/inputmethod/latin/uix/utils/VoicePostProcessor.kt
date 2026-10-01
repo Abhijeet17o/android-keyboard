@@ -1,4 +1,4 @@
-﻿package org.futo.inputmethod.latin.uix.utils
+package org.futo.inputmethod.latin.uix.utils
 
 object VoicePostProcessor {
 
@@ -73,7 +73,9 @@ object VoicePostProcessor {
         // 3. "X dollars and Y cents" -> "$X.YY"
         val centsRe = Regex("""(?i)\b([\w\s-]+?)\s+dollars?\s+and\s+([\w\s-]+?)\s+cents?\b""")
         t = centsRe.replace(t) { mr ->
-            val d = wordsToInt(mr.groupValues[1]); val c = wordsToInt(mr.groupValues[2])
+            val d = wordsToInt(mr.groupValues[1])
+            val c = wordsToInt(mr.groupValues[2])
+            if (d != null && c != null) "\$$d.${c.toString().padStart(2, '0')}" else mr.value
         }
 
         // 4. "X percent" -> "X%"
