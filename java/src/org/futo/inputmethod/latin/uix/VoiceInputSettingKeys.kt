@@ -73,3 +73,24 @@ val ANIMATE_BUBBLE = SettingsKey(
     key = booleanPreferencesKey("animate_bubble"),
     default = true
 )
+
+// Voice post-processing settings
+val VOICE_POST_PROCESSING = SettingsKey(
+    key = booleanPreferencesKey("voice_post_processing"),
+    default = true
+)
+
+val VOICE_REMOVE_FILLERS = SettingsKey(
+    key = booleanPreferencesKey("voice_remove_fillers"),
+    default = true
+)
+
+val VOICE_SPOKEN_PUNCTUATION = SettingsKey(
+    key = booleanPreferencesKey("voice_spoken_punctuation"),
+    default = true
+)
+
+val VOICE_AUTO_CAPITALIZE = SettingsKey(
+    key = booleanPreferencesKey("voice_auto_capitalize"),
+    default = true
+)

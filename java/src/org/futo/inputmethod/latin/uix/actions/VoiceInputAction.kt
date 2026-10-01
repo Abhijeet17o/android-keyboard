@@ -1,4 +1,4 @@
-﻿package org.futo.inputmethod.latin.uix.actions
+package org.futo.inputmethod.latin.uix.actions
 
 import android.content.Intent
 import androidx.compose.foundation.clickable
@@ -40,6 +40,10 @@ import org.futo.inputmethod.latin.uix.ResourceHelper
 import org.futo.inputmethod.latin.uix.USE_PERSONAL_DICT
 import org.futo.inputmethod.latin.uix.USE_VAD_AUTOSTOP
 import org.futo.inputmethod.latin.uix.VERBOSE_PROGRESS
+import org.futo.inputmethod.latin.uix.VOICE_AUTO_CAPITALIZE
+import org.futo.inputmethod.latin.uix.VOICE_POST_PROCESSING
+import org.futo.inputmethod.latin.uix.VOICE_REMOVE_FILLERS
+import org.futo.inputmethod.latin.uix.VOICE_SPOKEN_PUNCTUATION
 import org.futo.inputmethod.latin.uix.getSetting
 import org.futo.inputmethod.latin.uix.setSetting
 import org.futo.inputmethod.latin.uix.settings.SettingsActivity
@@ -267,7 +271,15 @@ private class VoiceInputActionWindow(
         wasFinished = true
 
         manager.getLifecycleScope().launch(Dispatchers.Main) {
-            val postProcessed = VoicePostProcessor.process(result)
+            val postProcessed = if (context.getSetting(VOICE_POST_PROCESSING)) {
+                VoicePostProcessor.process(
+                    raw = result,
+                    removeFillers     = context.getSetting(VOICE_REMOVE_FILLERS),
+                    spokenPunctuation = context.getSetting(VOICE_SPOKEN_PUNCTUATION),
+                    autoCapitalize    = context.getSetting(VOICE_AUTO_CAPITALIZE),
+                    numberWords       = true
+                )
+            } else result
             val sanitized = ModelOutputSanitizer.sanitize(postProcessed, inputTransaction.textContext)
             inputTransaction.commit(sanitized)
             manager.announce(postProcessed)
@@ -277,7 +289,15 @@ private class VoiceInputActionWindow(
 
     override fun partialResult(result: String) {
         manager.getLifecycleScope().launch(Dispatchers.Main) {
-            val postProcessed = VoicePostProcessor.process(result)
+            val postProcessed = if (context.getSetting(VOICE_POST_PROCESSING)) {
+                VoicePostProcessor.process(
+                    raw = result,
+                    removeFillers     = context.getSetting(VOICE_REMOVE_FILLERS),
+                    spokenPunctuation = context.getSetting(VOICE_SPOKEN_PUNCTUATION),
+                    autoCapitalize    = context.getSetting(VOICE_AUTO_CAPITALIZE),
+                    numberWords       = true
+                )
+            } else result
             val sanitized = ModelOutputSanitizer.sanitize(postProcessed, inputTransaction.textContext)
             inputTransaction.updatePartial(sanitized)
         }
