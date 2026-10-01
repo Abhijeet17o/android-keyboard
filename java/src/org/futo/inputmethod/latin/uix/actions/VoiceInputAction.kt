@@ -1,4 +1,4 @@
-package org.futo.inputmethod.latin.uix.actions
+﻿package org.futo.inputmethod.latin.uix.actions
 
 import android.content.Intent
 import androidx.compose.foundation.clickable
@@ -44,6 +44,7 @@ import org.futo.inputmethod.latin.uix.getSetting
 import org.futo.inputmethod.latin.uix.setSetting
 import org.futo.inputmethod.latin.uix.settings.SettingsActivity
 import org.futo.inputmethod.latin.uix.utils.ModelOutputSanitizer
+import org.futo.inputmethod.latin.uix.utils.VoicePostProcessor
 import org.futo.inputmethod.latin.xlm.UserDictionaryObserver
 import org.futo.inputmethod.updates.openURI
 import org.futo.voiceinput.shared.ModelDoesNotExistException
@@ -266,16 +267,18 @@ private class VoiceInputActionWindow(
         wasFinished = true
 
         manager.getLifecycleScope().launch(Dispatchers.Main) {
-            val sanitized = ModelOutputSanitizer.sanitize(result, inputTransaction.textContext)
+            val postProcessed = VoicePostProcessor.process(result)
+            val sanitized = ModelOutputSanitizer.sanitize(postProcessed, inputTransaction.textContext)
             inputTransaction.commit(sanitized)
-            manager.announce(result)
+            manager.announce(postProcessed)
             manager.closeActionWindow()
         }
     }
 
     override fun partialResult(result: String) {
         manager.getLifecycleScope().launch(Dispatchers.Main) {
-            val sanitized = ModelOutputSanitizer.sanitize(result, inputTransaction.textContext)
+            val postProcessed = VoicePostProcessor.process(result)
+            val sanitized = ModelOutputSanitizer.sanitize(postProcessed, inputTransaction.textContext)
             inputTransaction.updatePartial(sanitized)
         }
     }
