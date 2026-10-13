@@ -1,0 +1,169 @@
+# Golden cases for the voice post-processor (VoicePipeline with default options).
+# Format: locale | Whisper output | expected text | tag      ("\n" = line break, "#" = comment)
+# Add every real-world failure from the on-device dictation log here.
+
+# --- Spacing around numbers (the original bug) ---
+en-US | I bought forty nine apples | I bought 49 apples | spacing
+en-US | two hundred people came | 200 people came | spacing
+en-US | I have twenty five apples and thirty oranges. | I have 25 apples and 30 oranges. | spacing
+en-US | he scored ninety nine runs | He scored 99 runs | spacing
+en-US | I'm forty-five years old | I'm 45 years old | spacing
+
+# --- Currency, percent, units ---
+en-US | i paid fifty dollars today | I paid $50 today | currency
+en-US | The price is forty nine dollars and ninety nine cents. | The price is $49.99. | currency
+en-US | the order total is fifty nine dollars and ninety nine cents | The order total is $59.99 | currency
+en-US | three hundred and fifty dollars | $350 | currency
+en-US | give me fifty bucks | Give me $50 | currency
+en-US | It costs $50. | It costs $50. | idempotent
+en-US | it grew by twenty percent | It grew by 20% | percent
+en-US | it grew by five percent | It grew by 5% | percent
+en-US | that's one hundred percent right | That's 100% right | percent
+en-US | one kilogram | 1 kg | units
+en-US | twenty three kilometers | 23 km | units
+en-US | three degrees | 3° | units
+en-US | it's thirty degrees celsius outside | It's 30°C outside | units
+en-US | I need five gigabytes of storage | I need 5 GB of storage | units
+en-US | the room is ten feet wide | The room is 10 feet wide | units
+
+# --- Indian English ---
+en-IN | the price is two lakh rupees | The price is ₹2 lakh | inr
+en-IN | I paid five hundred rupees | I paid ₹500 | inr
+en-IN | it costs two lakh fifty thousand rupees | It costs ₹2,50,000 | inr
+en-IN | the budget is one point five crore | The budget is 1.5 crore | inr
+en-IN | the budget is one point five crore rupees | The budget is ₹1.5 crore | inr
+en-IN | give me fifty bucks | Give me ₹50 | inr
+en-IN | Rs. 500 only | ₹500 only | inr
+en-IN | The flat costs 4500000 rupees. | The flat costs ₹45,00,000. | inr
+en-IN | my number is nine eight seven six five four three two one zero | My number is 98765 43210 | phone
+en-IN | call me on double nine eight seven six five four three two one | Call me on 99876 54321 | phone
+en-IN | my email id is rahul at the rate yahoo dot co dot in | My email id is rahul@yahoo.co.in | tech
+en-IN | add a comment open bracket optional close bracket | Add a comment (optional) | commands
+
+# --- Cardinals, decimals, digit strings ---
+en-US | five two nine | 529 | numbers
+en-US | twenty three | 23 | numbers
+en-US | one hundred twenty three | 123 | numbers
+en-US | three point one four | 3.14 | numbers
+en-US | the temperature is minus forty two | The temperature is -42 | numbers
+en-US | one thousand | 1,000 | numbers
+en-US | two million | 2 million | numbers
+en-US | two hundred fifty | 250 | numbers
+en-US | one two three four | 1234 | numbers
+en-US | five | 5 | numbers
+en-US | a hundred people | 100 people | numbers
+en-US | about a thousand times | About 1,000 times | numbers
+en-US | page five | Page 5 | numbers
+en-US | chapter one is the best | Chapter 1 is the best | numbers
+en-US | version two point five | Version 2.5 | numbers
+en-US | the stock went from forty to fifty | The stock went from 40 to 50 | numbers
+en-US | call me at nine one seven five five five one two one two | Call me at 917-555-1212 | phone
+
+# --- Small numbers stay words in prose ---
+en-US | no one knows | No one knows | prose
+en-US | one of the best days | One of the best days | prose
+en-US | I have three kids | I have three kids | prose
+en-US | she came third | She came third | prose
+en-US | I'll be there at five | I'll be there at five | prose
+en-US | ten fifteen | Ten fifteen | prose
+en-US | it took fifteen twenty minutes | It took fifteen twenty minutes | prose
+en-US | At first I thought it was fine, but a second later it broke. | At first I thought it was fine, but a second later it broke. | prose
+
+# --- Years and dates ---
+en-US | the year was nineteen eighty four | The year was 1984 | year
+en-US | in nineteen ninety nine | In 1999 | year
+en-US | the year two thousand | The year 2000 | year
+en-US | in two thousand twenty six | In 2026 | year
+en-US | twenty twenty six was great | 2026 was great | year
+en-US | March third | March 3rd | date
+en-US | January first | January 1st | date
+en-US | September twenty third | September 23rd | date
+en-US | born on July fourth nineteen eighty eight | Born on July 4th, 1988 | date
+en-US | the twenty first century | The 21st century | date
+en-US | the third of March | The 3rd of March | date
+en-US | the meeting is in May | The meeting is in May | date
+en-US | you may first check | You may first check | date
+
+# --- Times ---
+en-US | the meeting is on december twenty fifth at three forty five PM | The meeting is on December 25th at 3:45 PM | time
+en-US | meet me at ten thirty AM tomorrow | Meet me at 10:30 AM tomorrow | time
+en-US | three forty five PM | 3:45 PM | time
+en-US | seven thirty AM | 7:30 AM | time
+en-US | half past three | 3:30 | time
+en-US | quarter past three | 3:15 | time
+en-US | quarter to three | 2:45 | time
+en-US | quarter to one | 12:45 | time
+en-US | three o'clock | 3 o'clock | time
+en-US | three five PM | 3:05 PM | time
+en-US | three thirty Am | 3:30 AM | time
+en-US | let's meet at fifteen thirty | Let's meet at 15:30 | time
+en-US | from two thirty to four thirty | From 2:30 to 4:30 | time
+en-US | see you at 3pm | See you at 3 PM | time
+en-US | See you at 3.30 p.m. | See you at 3:30 PM. | time
+en-US | The meeting is at 3:45 PM on December 25th. | The meeting is at 3:45 PM on December 25th. | idempotent
+
+# --- Spoken commands ---
+en-US | hello comma how are you question mark | Hello, how are you? | commands
+en-US | Hello, comma, world. | Hello, world. | commands
+en-US | Hello comma. How are you? | Hello, how are you? | commands
+en-US | I'll see you then period | I'll see you then. | commands
+en-US | That's it. Period. | That's it. | commands
+en-US | the trial period ended | The trial period ended | commands
+en-US | The trial period. | The trial period. | commands
+en-US | first line new line second line | First line\nSecond line | commands
+en-US | Dear John, new paragraph. Thanks for the update. | Dear John,\n\nThanks for the update. | commands
+en-US | we need a new line of products | We need a new line of products | commands
+en-US | he said open quote hello close quote | He said "hello" | commands
+en-US | add a comment open paren optional close paren | Add a comment (optional) | commands
+en-US | hashtag throwback | #throwback | commands
+en-US | I want to buy milk scratch that I want to buy eggs | I want to buy eggs | commands
+en-US | Buy milk. Actually, scratch that. Buy eggs. | Buy eggs. | commands
+
+# --- Fillers ---
+en-US | um I think uh we should go | I think we should go | fillers
+en-US | So, um, I think we should go. | So, I think we should go. | fillers
+en-US | Um, I think we should go. | I think we should go. | fillers
+en-US | I I think the the plan works | I think the plan works | fillers
+en-US | do you know him | Do you know him | fillers
+en-US | I was like, you know, really tired. | I was like, you know, really tired. | fillers
+
+# --- Technical text ---
+en-US | my file is main dot py | My file is main.py | tech
+en-US | open config underscore loader dot kt | Open config_loader.kt | tech
+en-US | go to https colon slash slash github dot com | Go to https://github.com | tech
+en-US | visit www dot google dot com | Visit www.google.com | tech
+en-US | my email is john at gmail dot com | My email is john@gmail.com | tech
+en-US | I'll look at google dot com later | I'll look at google.com later | tech
+en-US | look at file.py | Look at file.py | tech
+en-US | use and slash or here | Use and/or here | tech
+
+# --- Lists ---
+en-US | first wash your hands second dry them third apply lotion | 1. Wash your hands\n2. Dry them\n3. Apply lotion | lists
+en-US | Here are the steps. First, wash your hands. Second, dry them. Third, apply lotion. | Here are the steps.\n1. Wash your hands.\n2. Dry them.\n3. Apply lotion. | lists
+en-US | Groceries, number one milk, number two eggs | Groceries:\n1. Milk\n2. Eggs | lists
+
+# --- Punctuation and capitalization repair ---
+en-US | hello world | Hello world | format
+en-US | hello  world | Hello world | format
+en-US | hello , world | Hello, world | format
+en-US | Hello,, world | Hello, world | format
+en-US | Wait. . What? | Wait. What? | format
+en-US | Really?. | Really? | format
+en-US | i think i'm ready | I think I'm ready | format
+en-US | Check the docs, i.e. the README. | Check the docs, i.e. the README. | format
+en-US | It was 49 apples. | It was 49 apples. | idempotent
+
+# --- Prose that must survive untouched (regressions found by the prose stress test) ---
+en-US | At one point, I thought we were going to miss the flight. | At one point, I thought we were going to miss the flight. | prose
+en-US | New line characters are tricky in JSON. | New line characters are tricky in JSON. | prose
+en-US | Use a hyphen between the words. | Use a hyphen between the words. | prose
+en-US | The comma goes before the quote. | The comma goes before the quote. | prose
+en-US | I had a colon cleanse last year. | I had a colon cleanse last year. | prose
+en-US | My period starts next week so I might be tired. | My period starts next week so I might be tired. | prose
+en-US | Can you march into his office and ask? | Can you march into his office and ask? | prose
+en-US | May I come in? | May I come in? | prose
+en-US | He finished first in the race and I came second. | He finished first in the race and I came second. | prose
+en-US | I'll call you back in a second. | I'll call you back in a second. | prose
+en-US | I'll be home around six thirty. | I'll be home around 6:30. | time
+en-US | I scored a hundred and ten on the test. | I scored 110 on the test. | numbers
+en-IN | Kal meeting hai, please time pe aana. | Kal meeting hai, please time pe aana. | hinglish

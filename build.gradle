@@ -361,6 +361,12 @@ android {
             java.srcDirs = ['tests/src']
             manifest.srcFile 'tests/AndroidManifest.xml'
         }
+
+        // Plain JVM unit tests (no device needed). Also runnable without Gradle: tests-unit/run-local.sh
+        test {
+            java.srcDirs = ['tests-unit/src']
+            resources.srcDirs = ['tests-unit/resources']
+        }
     }
 
     lintOptions {

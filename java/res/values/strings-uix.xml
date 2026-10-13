@@ -604,11 +604,11 @@
 
     <!-- Voice post-processing settings -->
     <string name="voice_input_settings_post_processing">Smart post-processing</string>
-    <string name="voice_input_settings_post_processing_subtitle">Auto-convert number words, currency, dates &amp; more (like Wispr Flow)</string>
+    <string name="voice_input_settings_post_processing_subtitle">Format numbers, money (₹2,50,000), times, dates, units, phone numbers and lists</string>
     <string name="voice_input_settings_remove_fillers">Remove filler words</string>
-    <string name="voice_input_settings_remove_fillers_subtitle">Remove um, uh, hmm, you know, etc. from transcripts</string>
+    <string name="voice_input_settings_remove_fillers_subtitle">Remove hesitations like um, uh and hmm, and repeated words like “I I think”</string>
     <string name="voice_input_settings_spoken_punctuation">Spoken punctuation</string>
-    <string name="voice_input_settings_spoken_punctuation_subtitle">Convert "period", "comma", "new line" etc. into actual punctuation</string>
+    <string name="voice_input_settings_spoken_punctuation_subtitle">Say “comma”, “question mark”, “new line”, “open quote”, or “scratch that” to undo the last sentence</string>
     <string name="voice_input_settings_auto_capitalize">Auto-capitalize</string>
     <string name="voice_input_settings_auto_capitalize_subtitle">Capitalize "I" and the first word after sentence-ending punctuation</string>
 
@@ -618,7 +618,16 @@
     <string name="voice_pp_filename_recognition">Filename &amp; code recognition</string>
     <string name="voice_pp_filename_recognition_subtitle">"underscore" → _, "dot py" → .py, "https colon slash slash" → https://, email patterns</string>
     <string name="voice_pp_smart_paragraphs">Smart paragraph breaks</string>
-    <string name="voice_pp_smart_paragraphs_subtitle">Auto-insert paragraph breaks when you say "moving on", "furthermore", "in conclusion", etc.</string>
+    <string name="voice_pp_smart_paragraphs_subtitle">Start a new paragraph when a sentence begins with “moving on”, “in conclusion”, “on another note” and similar</string>
+    <string name="voice_pp_remove_verbal_tics">Remove verbal tics</string>
+    <string name="voice_pp_remove_verbal_tics_subtitle">Also remove “you know”, “basically”, “I mean” and similar when they are set off by commas</string>
+    <string name="voice_pp_format_lists">Numbered and bulleted lists</string>
+    <string name="voice_pp_format_lists_subtitle">“First … second … third” or “number one … number two” becomes a numbered list; “bullet point” starts a bullet</string>
+    <string name="voice_pp_debug_log">Dictation log</string>
+    <string name="voice_pp_debug_log_subtitle">Keep a private, on-device log of what Whisper heard and what was typed, to help improve formatting</string>
+    <string name="voice_pp_debug_log_share">Share dictation log</string>
+    <string name="voice_pp_debug_log_share_subtitle">Opens the share sheet with the log as text. Nothing is sent unless you choose an app</string>
+    <string name="voice_pp_debug_log_clear">Clear dictation log</string>
 
     <!-- Prediction menu -->
     <string name="prediction_settings_title">Text Prediction</string>

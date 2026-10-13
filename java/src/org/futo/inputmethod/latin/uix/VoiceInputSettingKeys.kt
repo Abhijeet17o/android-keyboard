@@ -102,5 +102,20 @@ val VOICE_FILENAME_RECOGNITION = SettingsKey(
 
 val VOICE_SMART_PARAGRAPHS = SettingsKey(
     key = booleanPreferencesKey("voice_smart_paragraphs"),
+    default = false
+)
+
+val VOICE_REMOVE_VERBAL_TICS = SettingsKey(
+    key = booleanPreferencesKey("voice_remove_verbal_tics"),
+    default = false
+)
+
+val VOICE_FORMAT_LISTS = SettingsKey(
+    key = booleanPreferencesKey("voice_format_lists"),
     default = true
+)
+
+val VOICE_DEBUG_LOG = SettingsKey(
+    key = booleanPreferencesKey("voice_debug_log"),
+    default = false
 )

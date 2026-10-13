@@ -61,3 +61,11 @@ jobs:
           name: futo-keyboard-voice-postprocessing
           path: '**/*.apk'
           if-no-files-found: error
+
+      # After the upload, so a test failure never withholds the APK.
+      - name: Voice post-processor unit tests
+        run: ./gradlew testUnstableDebugUnitTest --tests "org.futo.inputmethod.latin.uix.utils.voicepp.*" --stacktrace
+        env:
+          ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+          VERSION_CODE: 1000
+          VERSION_NAME: 1.0.0-voice-flow

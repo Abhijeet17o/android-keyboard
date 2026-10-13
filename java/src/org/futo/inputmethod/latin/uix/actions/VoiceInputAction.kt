@@ -40,16 +40,21 @@ import org.futo.inputmethod.latin.uix.ResourceHelper
 import org.futo.inputmethod.latin.uix.USE_PERSONAL_DICT
 import org.futo.inputmethod.latin.uix.USE_VAD_AUTOSTOP
 import org.futo.inputmethod.latin.uix.VERBOSE_PROGRESS
+import org.futo.inputmethod.latin.RichInputMethodManager
 import org.futo.inputmethod.latin.uix.VOICE_AUTO_CAPITALIZE
+import org.futo.inputmethod.latin.uix.VOICE_DEBUG_LOG
 import org.futo.inputmethod.latin.uix.VOICE_FILENAME_RECOGNITION
+import org.futo.inputmethod.latin.uix.VOICE_FORMAT_LISTS
 import org.futo.inputmethod.latin.uix.VOICE_POST_PROCESSING
 import org.futo.inputmethod.latin.uix.VOICE_REMOVE_FILLERS
+import org.futo.inputmethod.latin.uix.VOICE_REMOVE_VERBAL_TICS
 import org.futo.inputmethod.latin.uix.VOICE_SMART_PARAGRAPHS
 import org.futo.inputmethod.latin.uix.VOICE_SPOKEN_PUNCTUATION
 import org.futo.inputmethod.latin.uix.getSetting
 import org.futo.inputmethod.latin.uix.setSetting
 import org.futo.inputmethod.latin.uix.settings.SettingsActivity
 import org.futo.inputmethod.latin.uix.utils.ModelOutputSanitizer
+import org.futo.inputmethod.latin.uix.utils.VoiceDictationLog
 import org.futo.inputmethod.latin.uix.utils.VoicePostProcessor
 import org.futo.inputmethod.latin.xlm.UserDictionaryObserver
 import org.futo.inputmethod.updates.openURI
@@ -269,41 +274,43 @@ private class VoiceInputActionWindow(
         }
     }
 
+    private fun postProcess(result: String, partial: Boolean): String {
+        if (!context.getSetting(VOICE_POST_PROCESSING)) return result
+        return VoicePostProcessor.process(
+            raw = result,
+            removeFillers       = context.getSetting(VOICE_REMOVE_FILLERS),
+            removeVerbalTics    = context.getSetting(VOICE_REMOVE_VERBAL_TICS),
+            spokenPunctuation   = context.getSetting(VOICE_SPOKEN_PUNCTUATION),
+            autoCapitalize      = context.getSetting(VOICE_AUTO_CAPITALIZE),
+            numberWords         = true,
+            filenameRecognition = context.getSetting(VOICE_FILENAME_RECOGNITION),
+            smartParagraphs     = context.getSetting(VOICE_SMART_PARAGRAPHS),
+            formatLists         = context.getSetting(VOICE_FORMAT_LISTS),
+            locale              = RichInputMethodManager.getInstance().currentSubtypeLocale,
+            partial             = partial
+        )
+    }
+
     override fun finished(result: String) {
         wasFinished = true
 
         manager.getLifecycleScope().launch(Dispatchers.Main) {
-            val postProcessed = if (context.getSetting(VOICE_POST_PROCESSING)) {
-                VoicePostProcessor.process(
-                    raw = result,
-                    removeFillers     = context.getSetting(VOICE_REMOVE_FILLERS),
-                    spokenPunctuation = context.getSetting(VOICE_SPOKEN_PUNCTUATION),
-                    autoCapitalize    = context.getSetting(VOICE_AUTO_CAPITALIZE),
-                    numberWords       = true,
-                    filenameRecognition = context.getSetting(VOICE_FILENAME_RECOGNITION),
-                    smartParagraphs   = context.getSetting(VOICE_SMART_PARAGRAPHS)
-                )
-            } else result
+            val postProcessed = postProcess(result, partial = false)
             val sanitized = ModelOutputSanitizer.sanitize(postProcessed, inputTransaction.textContext)
             inputTransaction.commit(sanitized)
             manager.announce(postProcessed)
             manager.closeActionWindow()
+
+            if (context.getSetting(VOICE_DEBUG_LOG)) {
+                val locale = RichInputMethodManager.getInstance().currentSubtypeLocale.toLanguageTag()
+                launch(Dispatchers.IO) { VoiceDictationLog.append(context, locale, result, postProcessed) }
+            }
         }
     }
 
     override fun partialResult(result: String) {
         manager.getLifecycleScope().launch(Dispatchers.Main) {
-            val postProcessed = if (context.getSetting(VOICE_POST_PROCESSING)) {
-                VoicePostProcessor.process(
-                    raw = result,
-                    removeFillers     = context.getSetting(VOICE_REMOVE_FILLERS),
-                    spokenPunctuation = context.getSetting(VOICE_SPOKEN_PUNCTUATION),
-                    autoCapitalize    = context.getSetting(VOICE_AUTO_CAPITALIZE),
-                    numberWords       = true,
-                    filenameRecognition = context.getSetting(VOICE_FILENAME_RECOGNITION),
-                    smartParagraphs   = context.getSetting(VOICE_SMART_PARAGRAPHS)
-                )
-            } else result
+            val postProcessed = postProcess(result, partial = true)
             val sanitized = ModelOutputSanitizer.sanitize(postProcessed, inputTransaction.textContext)
             inputTransaction.updatePartial(sanitized)
         }
