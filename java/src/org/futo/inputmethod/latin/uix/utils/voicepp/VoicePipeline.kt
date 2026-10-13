@@ -43,6 +43,7 @@ object VoicePipeline {
 
         if (options.spokenPunctuation) SpokenCommands.apply(tokens)
         if (options.removeFillers) Fillers.apply(tokens, options.removeVerbalTics)
+        if (options.hinglish) Hinglish.normalizeSpellings(tokens)
         if (options.vocabulary.isNotEmpty()) Vocabulary(options.vocabulary).apply(tokens)
         if (!options.partial) {
             if (options.filenameRecognition) TechTerms.apply(tokens)

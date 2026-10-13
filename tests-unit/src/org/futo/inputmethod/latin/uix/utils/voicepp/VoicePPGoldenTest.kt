@@ -125,6 +125,11 @@ class VoicePPGoldenTest {
         val mixed = p("Please मेरा email check करो")
         assertEquals("Please mera email check karo", mixed)
         assertTrue(p("मैं आज बहुत खुश हूँ").none { it in 'ऀ'..'ॿ' })
+        // Output of a Hinglish model (Latin script, mixed languages, phonetic spellings).
+        assertEquals("Yeh kaam zaroori hai isliye main office ja raha hoon",
+            p("yah kaam jaroori hai islie main office ja raha hoon"))
+        assertEquals("Kal ki meeting 4 baje hai, please calendar check kar lo",
+            p("kal ki meeting char baje hai, please calendar check kar lo"))
         // Off by default.
         assertEquals("कल मीटिंग है", VoicePipeline.process("कल मीटिंग है"))
     }

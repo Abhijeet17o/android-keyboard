@@ -57,7 +57,7 @@ static jlong WhisperGGML_openFromBuffer(JNIEnv *env, jclass clazz, jobject buffe
     return reinterpret_cast<jlong>(state);
 }
 
-static jstring WhisperGGML_infer(JNIEnv *env, jobject instance, jlong handle, jfloatArray samples_array, jstring prompt, jobjectArray languages, jobjectArray bail_languages, jint decoding_mode, jboolean suppress_non_speech_tokens) {
+static jstring WhisperGGML_infer(JNIEnv *env, jobject instance, jlong handle, jfloatArray samples_array, jstring prompt, jobjectArray languages, jobjectArray bail_languages, jint decoding_mode, jboolean suppress_non_speech_tokens, jboolean full_audio_context) {
     AKLOGI("Attempting to infer model...");
 
     auto *state = reinterpret_cast<WhisperModelState *>(handle);
@@ -98,7 +98,10 @@ static jstring WhisperGGML_infer(JNIEnv *env, jobject instance, jlong handle, jf
     wparams.max_tokens = 256;
     wparams.n_threads = (int)num_procs;
 
-    wparams.audio_ctx = std::max(160, std::min(1500, (int)ceil((double)num_samples / (double)(320.0)) + 32));
+    // A shortened encoder context only works for ACFT-finetuned models. Other models (e.g. community
+    // finetunes) loop or repeat under it, so they run with the model's full context (0 = default).
+    wparams.audio_ctx = (full_audio_context == JNI_TRUE) ? 0 :
+            std::max(160, std::min(1500, (int)ceil((double)num_samples / (double)(320.0)) + 32));
     wparams.temperature_inc = 0.0f;
 
     // Replicates old tflite behavior
@@ -263,7 +266,7 @@ static const JNINativeMethod sMethods[] = {
         },
         {
                 const_cast<char *>("inferNative"),
-                const_cast<char *>("(J[FLjava/lang/String;[Ljava/lang/String;[Ljava/lang/String;IZ)Ljava/lang/String;"),
+                const_cast<char *>("(J[FLjava/lang/String;[Ljava/lang/String;[Ljava/lang/String;IZZ)Ljava/lang/String;"),
                 reinterpret_cast<void *>(WhisperGGML_infer)
         },
         {

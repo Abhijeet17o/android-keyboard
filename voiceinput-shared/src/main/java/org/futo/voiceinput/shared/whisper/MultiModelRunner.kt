@@ -25,7 +25,9 @@ data class DecodingConfiguration(
     val languages: Set<Language>,
     val suppressSymbols: Boolean,
     /** Text already in the field before the cursor; Whisper continues its vocabulary and style. */
-    val context: String = ""
+    val context: String = "",
+    /** Run the encoder over the full 30 s window; needed for models that are not ACFT-finetuned. */
+    val fullAudioContext: Boolean = false
 )
 
 // Whisper keeps only the last ~224 prompt tokens (n_text_ctx / 2) and silently drops prompts over
@@ -100,7 +102,8 @@ class MultiModelRunner(
                 suppressNonSpeechTokens = decodingConfiguration.suppressSymbols,
                 partialResultCallback = {
                     callback.partialResult(it)
-                }
+                },
+                fullAudioContext = decodingConfiguration.fullAudioContext
             )
         } catch(e: BailLanguageException) {
             callback.updateStatus(InferenceState.SwitchingModel)
@@ -118,7 +121,8 @@ class MultiModelRunner(
                 suppressNonSpeechTokens = decodingConfiguration.suppressSymbols,
                 partialResultCallback = {
                     callback.partialResult(it)
-                }
+                },
+                fullAudioContext = decodingConfiguration.fullAudioContext
             )
         }
 

@@ -1,5 +1,6 @@
 package org.futo.inputmethod.latin.uix.actions
 
+import android.content.Context
 import android.content.Intent
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -36,6 +37,7 @@ import org.futo.inputmethod.latin.uix.ENABLE_SOUND
 import org.futo.inputmethod.latin.uix.KeyboardManagerForAction
 import org.futo.inputmethod.latin.uix.PREFER_BLUETOOTH
 import org.futo.inputmethod.latin.uix.PersistentActionState
+import org.futo.inputmethod.latin.uix.FileKind
 import org.futo.inputmethod.latin.uix.ResourceHelper
 import org.futo.inputmethod.latin.uix.USE_PERSONAL_DICT
 import org.futo.inputmethod.latin.uix.USE_VAD_AUTOSTOP
@@ -128,7 +130,9 @@ class VoiceInputPersistentState(val manager: KeyboardManagerForAction) : Persist
 
 private class VoiceInputActionWindow(
     val manager: KeyboardManagerForAction, val state: VoiceInputPersistentState,
-    val model: ModelLoader, val locales: List<Locale>
+    val model: ModelLoader, val locales: List<Locale>,
+    /** [model] is the Hinglish model imported for Hindi (see [hinglishModelFor]). */
+    val hinglishModel: Boolean = false
 ) : ActionWindow(), RecognizerViewListener {
     val context = manager.getContext()
 
@@ -152,20 +156,22 @@ private class VoiceInputActionWindow(
 
         val primaryModel = model
         val languageSpecificModels = mutableMapOf<Language, ModelLoader>()
-        val allowedLanguages = locales.mapNotNull { getLanguageFromWhisperString(it.language) }.toSet()
         val glossary = if(usePersonalDict) {
             state.userDictionaryObserver.getWords(locales).filter { it.shortcut.isNullOrEmpty() }.map { it.word }
         } else {
             emptyList()
         }
         vocabulary = glossary
-        val fieldContext = if (context.getSetting(VOICE_CONTEXT_PROMPT)) {
+
+        // Hinglish models (e.g. Oriserve Whisper-Hindi2Hinglish) write Latin-script Hinglish only when
+        // decoded as "en" (forcing "hi" falls back to Devanagari), are corrupted by English prompts,
+        // and are not ACFT-finetuned, so they need the full audio context.
+        val allowedLanguages = if (hinglishModel) setOf(Language.English)
+            else locales.mapNotNull { getLanguageFromWhisperString(it.language) }.toSet()
+        val promptGlossary = if (hinglishModel) emptyList() else glossary
+        val promptContext = if (!hinglishModel && context.getSetting(VOICE_CONTEXT_PROMPT)) {
             inputTransaction.textContext.promptContext?.toString() ?: ""
         } else ""
-        // Whisper continues the script of its prompt; a romanized sample steers Hindi toward Latin.
-        val promptContext = if (context.getSetting(VOICE_HINGLISH)) {
-            "Haan, main kal office aaunga. Meeting 3 baje hai, theek hai? $fieldContext"
-        } else fieldContext
 
         shouldPlaySounds = enableSound
 
@@ -178,10 +184,11 @@ private class VoiceInputActionWindow(
                 languageSpecificModels = languageSpecificModels
             ),
             decodingConfiguration = DecodingConfiguration(
-                glossary = glossary,
+                glossary = promptGlossary,
                 languages = allowedLanguages,
                 suppressSymbols = disallowSymbols,
-                context = promptContext
+                context = promptContext,
+                fullAudioContext = hinglishModel
             ),
             recordingConfiguration = RecordingSettings(
                 preferBluetoothMic = useBluetoothAudio,
@@ -362,15 +369,28 @@ val VoiceInputAction = Action(icon = R.drawable.mic_fill,
     windowImpl = { manager, persistentState ->
         val locales = manager.getActiveLocales()
 
-        val model = ResourceHelper.tryFindingVoiceInputModelForLocale(manager.getContext(), locales.firstOrNull() ?: Locale.ROOT)
+        val hinglish = hinglishModelFor(manager.getContext())
+        val model = hinglish
+            ?: ResourceHelper.tryFindingVoiceInputModelForLocale(manager.getContext(), locales.firstOrNull() ?: Locale.ROOT)
 
         if(model == null) {
             VoiceInputNoModelWindow(locales.firstOrNull() ?: Locale.ROOT)
         } else {
             VoiceInputActionWindow(
                 manager = manager, state = persistentState as VoiceInputPersistentState,
-                locales = locales, model = model
+                locales = locales, model = model, hinglishModel = hinglish != null
             )
         }
     }
 )
+
+/**
+ * In Hinglish mode, the model imported for Hindi is used for every dictation, whatever keyboard
+ * layout is active, so a sentence can switch between Hindi and English freely.
+ */
+private fun hinglishModelFor(context: Context): ModelLoader? {
+    if (!context.getSetting(VOICE_HINGLISH)) return null
+    // Only an imported file counts; never fall back to a built-in English model.
+    ResourceHelper.findFileForKind(context, Locale("hi"), FileKind.VoiceInput) ?: return null
+    return ResourceHelper.tryFindingVoiceInputModelForLocale(context, Locale("hi"))
+}

@@ -117,6 +117,24 @@ internal object Hinglish {
         return sb.append(tail).toString()
     }
 
+    // ---------------------------------------------------------------- spelling
+
+    // Hinglish models transcribe phonetically ("yah", "islie"); map to the spellings people type.
+    private val SPELLINGS = mapOf(
+        "yah" to "yeh", "vah" to "woh", "vo" to "wo", "islie" to "isliye", "isilie" to "isiliye",
+        "kyonki" to "kyunki", "kyon" to "kyun", "nahin" to "nahi", "naheen" to "nahi",
+        "achchha" to "accha", "acchha" to "accha", "thik" to "theek",
+        "jaroor" to "zaroor", "jaroori" to "zaroori", "jarooree" to "zaroori", "bahot" to "bahut",
+    )
+
+    fun normalizeSpellings(tokens: List<Token>) {
+        for (t in tokens) {
+            if (!t.isWord || t.locked || t.keepCase) continue
+            val fixed = SPELLINGS[t.lower] ?: continue
+            t.text = if (t.text[0].isUpperCase()) fixed.replaceFirstChar { it.uppercaseChar() } else fixed
+        }
+    }
+
     // ---------------------------------------------------------------- numbers
 
     private val UNITS = mapOf(
