@@ -42,9 +42,11 @@ import org.futo.inputmethod.latin.uix.USE_VAD_AUTOSTOP
 import org.futo.inputmethod.latin.uix.VERBOSE_PROGRESS
 import org.futo.inputmethod.latin.RichInputMethodManager
 import org.futo.inputmethod.latin.uix.VOICE_AUTO_CAPITALIZE
+import org.futo.inputmethod.latin.uix.VOICE_CONTEXT_PROMPT
 import org.futo.inputmethod.latin.uix.VOICE_DEBUG_LOG
 import org.futo.inputmethod.latin.uix.VOICE_FILENAME_RECOGNITION
 import org.futo.inputmethod.latin.uix.VOICE_FORMAT_LISTS
+import org.futo.inputmethod.latin.uix.VOICE_HINGLISH
 import org.futo.inputmethod.latin.uix.VOICE_POST_PROCESSING
 import org.futo.inputmethod.latin.uix.VOICE_REMOVE_FILLERS
 import org.futo.inputmethod.latin.uix.VOICE_REMOVE_VERBAL_TICS
@@ -130,6 +132,12 @@ private class VoiceInputActionWindow(
 ) : ActionWindow(), RecognizerViewListener {
     val context = manager.getContext()
 
+    // Created before initJob launches: loadSettings() reads its text context on another thread.
+    private var inputTransaction = manager.createInputTransaction()
+
+    /** Personal-dictionary words, also used by the post-processor to fix names and casing. */
+    @Volatile private var vocabulary: List<String> = emptyList()
+
     private var shouldPlaySounds: Boolean = false
     private fun loadSettings(): RecognizerViewSettings {
         val enableSound = context.getSetting(ENABLE_SOUND)
@@ -150,6 +158,14 @@ private class VoiceInputActionWindow(
         } else {
             emptyList()
         }
+        vocabulary = glossary
+        val fieldContext = if (context.getSetting(VOICE_CONTEXT_PROMPT)) {
+            inputTransaction.textContext.promptContext?.toString() ?: ""
+        } else ""
+        // Whisper continues the script of its prompt; a romanized sample steers Hindi toward Latin.
+        val promptContext = if (context.getSetting(VOICE_HINGLISH)) {
+            "Haan, main kal office aaunga. Meeting 3 baje hai, theek hai? $fieldContext"
+        } else fieldContext
 
         shouldPlaySounds = enableSound
 
@@ -164,7 +180,8 @@ private class VoiceInputActionWindow(
             decodingConfiguration = DecodingConfiguration(
                 glossary = glossary,
                 languages = allowedLanguages,
-                suppressSymbols = disallowSymbols
+                suppressSymbols = disallowSymbols,
+                context = promptContext
             ),
             recordingConfiguration = RecordingSettings(
                 preferBluetoothMic = useBluetoothAudio,
@@ -204,8 +221,6 @@ private class VoiceInputActionWindow(
         //yield()
         recognizerView.start()
     }
-
-    private var inputTransaction = manager.createInputTransaction()
 
     @Composable
     private fun ModelDownloader(modelException: ModelDoesNotExistException) {
@@ -287,6 +302,8 @@ private class VoiceInputActionWindow(
             smartParagraphs     = context.getSetting(VOICE_SMART_PARAGRAPHS),
             formatLists         = context.getSetting(VOICE_FORMAT_LISTS),
             locale              = RichInputMethodManager.getInstance().currentSubtypeLocale,
+            vocabulary          = vocabulary,
+            hinglish            = context.getSetting(VOICE_HINGLISH),
             partial             = partial
         )
     }

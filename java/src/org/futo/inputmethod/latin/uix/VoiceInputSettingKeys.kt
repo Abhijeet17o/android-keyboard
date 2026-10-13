@@ -115,6 +115,16 @@ val VOICE_FORMAT_LISTS = SettingsKey(
     default = true
 )
 
+val VOICE_CONTEXT_PROMPT = SettingsKey(
+    key = booleanPreferencesKey("voice_context_prompt"),
+    default = true
+)
+
+val VOICE_HINGLISH = SettingsKey(
+    key = booleanPreferencesKey("voice_hinglish"),
+    default = false
+)
+
 val VOICE_DEBUG_LOG = SettingsKey(
     key = booleanPreferencesKey("voice_debug_log"),
     default = false

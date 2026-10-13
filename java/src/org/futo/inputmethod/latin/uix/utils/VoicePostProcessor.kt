@@ -32,6 +32,8 @@ object VoicePostProcessor {
         removeVerbalTics: Boolean = false,
         formatLists: Boolean = true,
         locale: Locale = Locale.getDefault(),
+        vocabulary: List<String> = emptyList(),
+        hinglish: Boolean = false,
         partial: Boolean = false,
     ): String {
         val options = VoicePPOptions(
@@ -44,6 +46,8 @@ object VoicePostProcessor {
             smartParagraphs = smartParagraphs,
             formatLists = formatLists,
             locale = locale,
+            vocabulary = vocabulary,
+            hinglish = hinglish,
             partial = partial,
         )
         // A formatting bug must never lose what the user said.

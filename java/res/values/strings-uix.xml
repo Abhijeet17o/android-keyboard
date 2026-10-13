@@ -623,6 +623,10 @@
     <string name="voice_pp_remove_verbal_tics_subtitle">Also remove “you know”, “basically”, “I mean” and similar when they are set off by commas</string>
     <string name="voice_pp_format_lists">Numbered and bulleted lists</string>
     <string name="voice_pp_format_lists_subtitle">“First … second … third” or “number one … number two” becomes a numbered list; “bullet point” starts a bullet</string>
+    <string name="voice_pp_context_prompt">Use surrounding text for accuracy</string>
+    <string name="voice_pp_context_prompt_subtitle">Give the speech model the text before the cursor so names and topic words are recognised better. Processed on device; never used in password or incognito fields</string>
+    <string name="voice_pp_hinglish">Hinglish (experimental)</string>
+    <string name="voice_pp_hinglish_subtitle">Write Hindi in Latin script and convert amounts like “paanch sau rupaye” → ₹500. Needs a multilingual voice model (e.g. small) to recognise Hindi</string>
     <string name="voice_pp_debug_log">Dictation log</string>
     <string name="voice_pp_debug_log_subtitle">Keep a private, on-device log of what Whisper heard and what was typed, to help improve formatting</string>
     <string name="voice_pp_debug_log_share">Share dictation log</string>

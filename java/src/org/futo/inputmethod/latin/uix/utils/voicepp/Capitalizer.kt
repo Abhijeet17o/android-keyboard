@@ -19,6 +19,7 @@ internal object Capitalizer {
                 t.isPunct -> {}
                 t.locked -> capNext = true // list marker
                 t.text.isEmpty() -> {}
+                t.keepCase -> capNext = false
                 else -> {
                     I_FORMS[t.lower]?.let { t.text = it }
                     if (capNext && t.text[0].isLowerCase() && !isCodeLike(t.text)) {

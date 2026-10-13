@@ -23,8 +23,35 @@ data class MultiModelRunConfiguration(
 data class DecodingConfiguration(
     val glossary: List<String>,
     val languages: Set<Language>,
-    val suppressSymbols: Boolean
+    val suppressSymbols: Boolean,
+    /** Text already in the field before the cursor; Whisper continues its vocabulary and style. */
+    val context: String = ""
 )
+
+// Whisper keeps only the last ~224 prompt tokens (n_text_ctx / 2) and silently drops prompts over
+// 1024 tokens, so both parts are capped (~4 characters per token). The context goes last because
+// Whisper keeps the end of the prompt and the most recent text matters most.
+private const val MAX_GLOSSARY_CHARS = 480
+private const val MAX_CONTEXT_CHARS = 280
+
+internal fun buildPrompt(glossary: List<String>, context: String): String {
+    val parts = ArrayList<String>(2)
+    if (glossary.isNotEmpty()) {
+        val sb = StringBuilder()
+        for (word in glossary) {
+            if (sb.length + word.length + 2 > MAX_GLOSSARY_CHARS) break
+            if (sb.isNotEmpty()) sb.append(", ")
+            sb.append(word)
+        }
+        if (sb.isNotEmpty()) parts.add("(Glossary: $sb)")
+    }
+    val tail = context.trim().let { c ->
+        if (c.length <= MAX_CONTEXT_CHARS) c
+        else c.takeLast(MAX_CONTEXT_CHARS).let { cut -> cut.substring(cut.indexOf(' ') + 1) }
+    }
+    if (tail.isNotEmpty()) parts.add(tail)
+    return parts.joinToString("\n")
+}
 
 class MultiModelRunner(
     private val modelManager: ModelManager
@@ -60,11 +87,7 @@ class MultiModelRunner(
         val allowedLanguages = decodingConfiguration.languages.map { it.toWhisperString() }.toTypedArray()
         val bailLanguages = runConfiguration.languageSpecificModels.filter { it.value != runConfiguration.primaryModel }.keys.map { it.toWhisperString() }.toTypedArray()
 
-        val glossary = if(decodingConfiguration.glossary.isNotEmpty()) {
-            "(Glossary: " + decodingConfiguration.glossary.joinToString(separator = ", ") + ")"
-        } else {
-            ""
-        }
+        val glossary = buildPrompt(decodingConfiguration.glossary, decodingConfiguration.context)
 
         val result = try {
             callback.updateStatus(InferenceState.Encoding)

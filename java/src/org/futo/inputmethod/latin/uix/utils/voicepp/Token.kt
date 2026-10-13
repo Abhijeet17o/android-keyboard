@@ -18,6 +18,9 @@ internal class Token(
     /** Final formatting (e.g. a list marker); later stages must not rewrite it. */
     var locked: Boolean = false,
 ) {
+    /** Spelling comes from the user's dictionary ("iPhone"); never re-capitalize it. */
+    var keepCase: Boolean = false
+
     val lower: String get() = text.lowercase(Locale.ROOT)
     val isWord: Boolean get() = kind == Kind.WORD
     val isPunct: Boolean get() = kind == Kind.PUNCT

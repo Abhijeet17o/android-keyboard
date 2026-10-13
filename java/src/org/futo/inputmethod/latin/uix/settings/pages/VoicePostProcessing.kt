@@ -6,9 +6,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import org.futo.inputmethod.latin.R
 import org.futo.inputmethod.latin.uix.VOICE_AUTO_CAPITALIZE
+import org.futo.inputmethod.latin.uix.VOICE_CONTEXT_PROMPT
 import org.futo.inputmethod.latin.uix.VOICE_DEBUG_LOG
 import org.futo.inputmethod.latin.uix.VOICE_FILENAME_RECOGNITION
 import org.futo.inputmethod.latin.uix.VOICE_FORMAT_LISTS
+import org.futo.inputmethod.latin.uix.VOICE_HINGLISH
 import org.futo.inputmethod.latin.uix.VOICE_POST_PROCESSING
 import org.futo.inputmethod.latin.uix.VOICE_REMOVE_FILLERS
 import org.futo.inputmethod.latin.uix.VOICE_REMOVE_VERBAL_TICS
@@ -65,6 +67,16 @@ val VoicePostProcessingMenu = UserSettingsMenu(
             title = R.string.voice_pp_smart_paragraphs,
             subtitle = R.string.voice_pp_smart_paragraphs_subtitle,
             setting = VOICE_SMART_PARAGRAPHS
+        ),
+        userSettingToggleDataStore(
+            title = R.string.voice_pp_context_prompt,
+            subtitle = R.string.voice_pp_context_prompt_subtitle,
+            setting = VOICE_CONTEXT_PROMPT
+        ),
+        userSettingToggleDataStore(
+            title = R.string.voice_pp_hinglish,
+            subtitle = R.string.voice_pp_hinglish_subtitle,
+            setting = VOICE_HINGLISH
         ),
         userSettingToggleDataStore(
             title = R.string.voice_pp_debug_log,

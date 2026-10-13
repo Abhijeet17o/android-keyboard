@@ -2,9 +2,11 @@ package org.futo.inputmethod.latin.uix.utils
 
 import org.futo.inputmethod.latin.RichInputMethodManager
 
-data class TextContext(
+data class TextContext @JvmOverloads constructor(
     val beforeCursor: CharSequence?,
-    val afterCursor: CharSequence?
+    val afterCursor: CharSequence?,
+    /** Longer text before the cursor for conditioning Whisper; null in password/incognito fields. */
+    val promptContext: CharSequence? = null
 )
 
 object ModelOutputSanitizer {

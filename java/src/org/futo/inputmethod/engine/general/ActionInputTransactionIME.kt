@@ -13,6 +13,7 @@ import org.futo.inputmethod.latin.common.InputPointers
 import org.futo.inputmethod.latin.uix.ActionInputTransaction
 import org.futo.inputmethod.latin.uix.getSetting
 import org.futo.inputmethod.latin.uix.utils.TextContext
+import org.futo.inputmethod.latin.utils.InputTypeUtils
 import org.futo.inputmethod.v2keyboard.KeyboardLayoutSetV2
 
 class ActionInputTransactionIME(val helper: IMEHelper) : IMEInterface, ActionInputTransaction {
@@ -71,10 +72,24 @@ class ActionInputTransactionIME(val helper: IMEHelper) : IMEInterface, ActionInp
     override fun requestSuggestionRefresh() {}
     override fun onLayoutUpdated(layout: KeyboardLayoutSetV2) { }
 
+    // Never read surrounding text out of password or incognito fields for the voice prompt.
+    private val isSensitiveField = run {
+        val editorInfo = helper.getCurrentEditorInfo()
+        val inputType = editorInfo?.inputType ?: 0
+        editorInfo == null || InputTypeUtils.isPasswordInputType(inputType) ||
+                InputTypeUtils.isVisiblePasswordInputType(inputType) ||
+                (editorInfo.imeOptions and EditorInfo.IME_FLAG_NO_PERSONALIZED_LEARNING) != 0
+    }
+
     override val textContext: TextContext = TextContext(
         beforeCursor = ic?.getTextBeforeCursor(Constants.VOICE_INPUT_CONTEXT_SIZE, 0),
-        afterCursor = ic?.getTextAfterCursor(Constants.VOICE_INPUT_CONTEXT_SIZE, 0)
+        afterCursor = ic?.getTextAfterCursor(Constants.VOICE_INPUT_CONTEXT_SIZE, 0),
+        promptContext = if (isSensitiveField) null else ic?.getTextBeforeCursor(VOICE_PROMPT_CONTEXT_SIZE, 0)
     )
+
+    companion object {
+        private const val VOICE_PROMPT_CONTEXT_SIZE = 300
+    }
 
     private var isFinished = false
     private var partialText = ""

@@ -83,6 +83,53 @@ class VoicePPGoldenTest {
     }
 
     @Test
+    fun personalVocabulary() {
+        val options = VoicePPOptions(vocabulary = listOf("GitHub", "Abhijeet", "FUTO", "iPhone", "Wispr", "US", "Kubernetes"))
+        fun p(s: String) = VoicePipeline.process(s, options)
+        assertEquals("Push it to GitHub.", p("Push it to github."))
+        assertEquals("Push it to GitHub.", p("Push it to Git Hub."))
+        assertEquals("Ask Abhijeet about it.", p("Ask Abhi jeet about it."))
+        assertEquals("Ask Abhijeet about it.", p("Ask Abhijit about it."))
+        assertEquals("iPhone is charging.", p("iphone is charging."))
+        assertEquals("FUTO keyboard works offline.", p("Futo keyboard works offline."))
+        assertEquals("It is better than Wispr Flow.", p("It is better than Whisper Flow.".replace("Whisper", "Wisper")))
+        // Lowercase common words are never fuzzily rewritten, and short acronyms don't hijack words.
+        assertEquals("Tell us what you think.", p("Tell us what you think."))
+        assertEquals("The whisper was quiet.", p("The whisper was quiet."))
+        assertEquals("Deploy on Kubernetes today.", p("Deploy on kubernetes today."))
+    }
+
+    @Test
+    fun hallucinationLoopsCollapse() {
+        assertEquals("I'm going to go.", VoicePipeline.process("I'm going to go. I'm going to go. I'm going to go. I'm going to go."))
+        assertEquals("Thanks", VoicePipeline.process("Thanks Thanks Thanks Thanks Thanks Thanks"))
+        assertEquals("Very, very good.", VoicePipeline.process("Very, very good."))
+        assertEquals("No no no, not that.", VoicePipeline.process("No no no, not that."))
+        assertEquals("See you tomorrow.", VoicePipeline.process("See you tomorrow. Subtitles by the Amara.org community"))
+    }
+
+    @Test
+    fun hinglish() {
+        val options = VoicePPOptions(locale = Locale.forLanguageTag("en-IN"), hinglish = true)
+        fun p(s: String) = VoicePipeline.process(s, options)
+        assertEquals("Mujhe ₹500 chahiye", p("मुझे पाँच सौ रुपये चाहिए"))
+        assertEquals("Kal meeting hai", p("कल मीटिंग है"))
+        assertEquals("Meeting 3 baje hai", p("meeting teen baje hai"))
+        assertEquals("₹2 lakh", p("do lakh rupaye"))
+        assertEquals("Budget 1.5 lakh hai", p("budget dedh lakh hai"))
+        assertEquals("5,500 log aaye", p("paanch hazaar paanch sau log aaye"))
+        // English words that are also Hindi numbers stay put without a scale/currency after them.
+        assertEquals("I will do it", p("I will do it"))
+        assertEquals("The teen was late", p("the teen was late"))
+        // Mixed scripts: only the Devanagari is transliterated.
+        val mixed = p("Please मेरा email check करो")
+        assertEquals("Please mera email check karo", mixed)
+        assertTrue(p("मैं आज बहुत खुश हूँ").none { it in 'ऀ'..'ॿ' })
+        // Off by default.
+        assertEquals("कल मीटिंग है", VoicePipeline.process("कल मीटिंग है"))
+    }
+
+    @Test
     fun britishPounds() {
         assertEquals("It costs £20", VoicePipeline.process("it costs twenty pounds", VoicePPOptions(locale = Locale.UK)))
         assertEquals("It weighs 20 pounds", VoicePipeline.process("it weighs twenty pounds", VoicePPOptions(locale = Locale.US)))
